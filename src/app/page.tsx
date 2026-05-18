@@ -1,65 +1,91 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+const categories = [
+  "Điện trở",
+  "Tụ điện",
+  "IC",
+  "Cảm biến",
+  "Module",
+  "Diode",
+  "Transistor",
+  "Relay",
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
+      <section className="mx-auto max-w-6xl">
+        <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200 md:p-12">
+          <p className="text-sm font-bold uppercase tracking-wide text-blue-600">
+            Hệ thống tra cứu linh kiện điện tử
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+          <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-slate-950 md:text-5xl">
+            Tìm kiếm linh kiện nhanh, xem thông số rõ, quản lý kho dễ dàng.
+          </h1>
+
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700">
+            Web hỗ trợ tìm kiếm linh kiện theo tên, mã hoặc từ khóa. Người dùng
+            có thể xem giá, số lượng tồn kho, vị trí lưu trữ và thông tin kỹ
+            thuật cơ bản.
+          </p>
+
+          <form action="/tim-kiem" className="mt-8 flex max-w-2xl gap-3">
+            <input
+              name="q"
+              type="text"
+              placeholder="Nhập tên hoặc mã linh kiện, ví dụ: ESP32, LM358, DHT11..."
+              className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+            <button className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
+              Tìm kiếm
+            </button>
+          </form>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/tim-kiem"
+              className="rounded-xl border border-blue-600 bg-white px-5 py-3 font-semibold text-blue-600 hover:bg-blue-50"
+            >
+              Xem tất cả linh kiện
+            </Link>
+
+            <Link
+              href="/dang-nhap"
+              className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Đăng nhập quản lý
+            </Link>
+          </div>
         </div>
-      </main>
-    </div>
+
+        <section className="mt-12">
+          <h2 className="text-3xl font-bold text-slate-950">
+            Danh mục linh kiện
+          </h2>
+
+          <p className="mt-2 text-slate-600">
+            Chọn nhanh nhóm linh kiện để xem danh sách phù hợp.
+          </p>
+
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 md:grid-cols-4">
+            {categories.map((item) => (
+              <Link
+                key={item}
+                href={`/tim-kiem?category=${encodeURIComponent(item)}`}
+                className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 hover:shadow-md"
+              >
+                <h3 className="text-xl font-bold text-slate-950">{item}</h3>
+
+                <p className="mt-3 leading-6 text-slate-700">
+                  Xem các linh kiện thuộc nhóm {item.toLowerCase()}.
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </section>
+    </main>
   );
 }
