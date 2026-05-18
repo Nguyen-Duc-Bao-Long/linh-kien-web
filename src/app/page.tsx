@@ -13,9 +13,9 @@ const categories = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
+    <main className="min-h-screen px-6 py-12 text-slate-900">
       <section className="mx-auto max-w-6xl">
-        <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200 md:p-12">
+        <div className="rounded-3xl bg-white/90 p-8 shadow-sm ring-1 ring-slate-200 md:p-12">
           <p className="text-sm font-bold uppercase tracking-wide text-blue-600">
             Hệ thống tra cứu linh kiện điện tử
           </p>
@@ -55,7 +55,7 @@ export default function HomePage() {
               href="/dang-nhap"
               className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-100"
             >
-              Đăng nhập quản lý
+              Đăng nhập / Đăng ký
             </Link>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function HomePage() {
               <Link
                 key={item}
                 href={`/tim-kiem?category=${encodeURIComponent(item)}`}
-                className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 hover:shadow-md"
+                className="rounded-2xl bg-white/90 p-6 shadow-sm ring-1 ring-slate-200 hover:shadow-md"
               >
                 <h3 className="text-xl font-bold text-slate-950">{item}</h3>
 

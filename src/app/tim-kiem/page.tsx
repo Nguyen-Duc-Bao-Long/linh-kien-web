@@ -57,7 +57,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const isFiltering = keyword !== "" || selectedCategory !== "Tất cả";
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+    <main
+  className="min-h-screen px-6 py-10 text-slate-900"
+  style={{
+    backgroundImage:
+      "linear-gradient(rgba(248, 250, 252, 0.88), rgba(248, 250, 252, 0.88)), url('/bg-linh-kien.jpg')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundAttachment: "fixed",
+  }}
+>
       <section className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-5">
           <div>
