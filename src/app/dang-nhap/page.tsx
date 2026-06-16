@@ -131,28 +131,35 @@ export default function LoginPage() {
             thể truy cập khu vực quản lý theo quyền được cấp.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl bg-blue-50 p-5">
-              <h3 className="font-bold text-blue-700">QTV</h3>
-              <p className="mt-2 text-sm text-slate-700">
-                Quản lý người dùng và toàn bộ hệ thống.
-              </p>
-            </div>
+<div className="grid gap-4 md:grid-cols-4">
+  <div className="rounded-2xl bg-slate-100 p-5">
+    <h3 className="font-bold text-blue-600">Khách hàng</h3>
+    <p className="mt-3 text-slate-700">
+      Tìm kiếm, xem giá, mua hàng và chat hỗ trợ.
+    </p>
+  </div>
 
-            <div className="rounded-2xl bg-slate-100 p-5">
-              <h3 className="font-bold text-slate-950">Nhân viên</h3>
-              <p className="mt-2 text-sm text-slate-700">
-                Hỗ trợ tra cứu, cập nhật kho và phản hồi khách hàng.
-              </p>
-            </div>
+  <div className="rounded-2xl bg-slate-100 p-5">
+    <h3 className="font-bold text-blue-600">Nhân viên</h3>
+    <p className="mt-3 text-slate-700">
+      Xem đơn hàng, xác nhận thanh toán và hỗ trợ khách hàng.
+    </p>
+  </div>
 
-            <div className="rounded-2xl bg-slate-100 p-5">
-              <h3 className="font-bold text-slate-950">Khách hàng</h3>
-              <p className="mt-2 text-sm text-slate-700">
-                Tìm kiếm, xem giá và thông tin chi tiết linh kiện.
-              </p>
-            </div>
-          </div>
+  <div className="rounded-2xl bg-slate-100 p-5">
+    <h3 className="font-bold text-blue-600">Chủ cửa hàng</h3>
+    <p className="mt-3 text-slate-700">
+      Quản lý linh kiện, giá bán, vị trí lưu kho và thống kê.
+    </p>
+  </div>
+
+  <div className="rounded-2xl bg-slate-100 p-5">
+    <h3 className="font-bold text-blue-600">Admin</h3>
+    <p className="mt-3 text-slate-700">
+      Quản lý tài khoản, khóa tài khoản và phân quyền người dùng.
+    </p>
+  </div>
+</div>
         </div>
 
         <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
