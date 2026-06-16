@@ -3,38 +3,35 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-
-type UserRole = "admin" | "staff" | "customer";
+import { type UserRole, roleLabel } from "@/lib/permissions";
 
 type Profile = {
   id: string;
-  email: string | null;
   full_name: string | null;
+  email: string | null;
   role: UserRole;
-  created_at: string | null;
+  phone: string | null;
+  address: string | null;
 };
 
-const roleLabels: Record<UserRole, string> = {
-  admin: "QTV",
-  staff: "Nhân viên",
-  customer: "Khách hàng",
-};
+const roleOptions: UserRole[] = ["customer", "staff", "owner", "admin"];
 
 export default function DashboardPage() {
+  const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [currentUserId, setCurrentUserId] = useState("");
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    loadDashboard();
+    loadData();
   }, []);
 
-  async function loadDashboard() {
+  async function loadData() {
     setLoading(true);
     setForbidden(false);
+    setMessage("");
     setErrorMessage("");
 
     const {
@@ -42,34 +39,36 @@ export default function DashboardPage() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setLoading(false);
       setForbidden(true);
       setErrorMessage("Bạn cần đăng nhập trước.");
+      setLoading(false);
       return;
     }
 
-    setCurrentUserId(user.id);
-
-    const { data: myProfile, error: myProfileError } = await supabase
+    const { data: myProfile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    if (myProfileError || !myProfile || myProfile.role !== "admin") {
-      setLoading(false);
+    const role = myProfile?.role as UserRole | undefined;
+
+    if (role !== "admin") {
       setForbidden(true);
-      setErrorMessage("Chỉ Quản trị viên mới được phân quyền tài khoản.");
+      setErrorMessage("Chỉ Admin mới được phân quyền tài khoản.");
+      setLoading(false);
       return;
     }
 
+    setCurrentRole(role);
+
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, full_name, role, created_at")
+      .select("id, full_name, email, role, phone, address")
       .order("created_at", { ascending: false });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage("Không tải được danh sách tài khoản.");
       setLoading(false);
       return;
     }
@@ -78,7 +77,7 @@ export default function DashboardPage() {
     setLoading(false);
   }
 
-  async function handleChangeRole(userId: string, newRole: UserRole) {
+  async function updateRole(userId: string, newRole: UserRole) {
     setMessage("");
     setErrorMessage("");
 
@@ -88,7 +87,7 @@ export default function DashboardPage() {
       .eq("id", userId);
 
     if (error) {
-      setErrorMessage("Không thể cập nhật vai trò.");
+      setErrorMessage("Không cập nhật được vai trò.");
       return;
     }
 
@@ -98,26 +97,21 @@ export default function DashboardPage() {
       )
     );
 
-    setMessage("Cập nhật vai trò thành công.");
-  }
-
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    window.location.href = "/dang-nhap";
+    setMessage("Đã cập nhật vai trò người dùng.");
   }
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
-        <p className="text-center text-slate-600">Đang tải dashboard...</p>
+      <main className="min-h-screen px-6 py-12 text-slate-900">
+        <p className="text-center text-slate-600">Đang tải dữ liệu...</p>
       </main>
     );
   }
 
-  if (forbidden) {
+  if (forbidden || currentRole !== "admin") {
     return (
-      <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
-        <section className="mx-auto max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+      <main className="min-h-screen px-6 py-12 text-slate-900">
+        <section className="mx-auto max-w-xl rounded-3xl bg-white/90 p-8 text-center shadow-sm ring-1 ring-slate-200">
           <h1 className="text-3xl font-bold text-red-600">
             Không có quyền truy cập
           </h1>
@@ -125,10 +119,10 @@ export default function DashboardPage() {
           <p className="mt-3 text-slate-600">{errorMessage}</p>
 
           <Link
-            href="/dang-nhap"
+            href="/tim-kiem"
             className="mt-6 inline-block rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
           >
-            Về trang đăng nhập
+            Về trang tìm kiếm
           </Link>
         </section>
       </main>
@@ -136,116 +130,83 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
+    <main className="min-h-screen px-6 py-10 text-slate-900">
       <section className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold text-slate-950">
-              Dashboard phân quyền
+              Phân quyền người dùng
             </h1>
 
             <p className="mt-2 text-slate-600">
-              Chỉ Quản trị viên được thay đổi vai trò của tài khoản khác.
+              Admin có thể phân quyền Khách hàng, Nhân viên, Chủ cửa hàng hoặc
+              Admin cho từng tài khoản.
             </p>
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-100"
-          >
-            Đăng xuất
-          </button>
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href="/don-hang"
-            className="inline-block rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-700"
-          >
-            Xem đơn hàng
-          </Link>
-
           <Link
             href="/tim-kiem"
-            className="inline-block rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
           >
             Về trang tìm kiếm
           </Link>
         </div>
 
         {message && (
-          <p className="mt-6 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+          <p className="mt-6 rounded-xl bg-green-50 px-4 py-3 font-medium text-green-700 ring-1 ring-green-200">
             {message}
           </p>
         )}
 
         {errorMessage && (
-          <p className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 ring-1 ring-red-200">
+          <p className="mt-6 rounded-xl bg-red-50 px-4 py-3 font-medium text-red-700 ring-1 ring-red-200">
             {errorMessage}
           </p>
         )}
 
-        <div className="mt-8 overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div className="mt-8 overflow-hidden rounded-3xl bg-white/90 shadow-sm ring-1 ring-slate-200">
           <table className="w-full border-collapse text-left">
             <thead className="bg-slate-100">
               <tr>
-                <th className="px-5 py-4 text-sm font-bold text-slate-700">
-                  Họ tên
-                </th>
-
-                <th className="px-5 py-4 text-sm font-bold text-slate-700">
-                  Email
-                </th>
-
-                <th className="px-5 py-4 text-sm font-bold text-slate-700">
-                  Vai trò hiện tại
-                </th>
-
-                <th className="px-5 py-4 text-sm font-bold text-slate-700">
-                  Phân quyền
-                </th>
+                <th className="px-5 py-4">Họ tên</th>
+                <th className="px-5 py-4">Email</th>
+                <th className="px-5 py-4">Số điện thoại</th>
+                <th className="px-5 py-4">Địa chỉ</th>
+                <th className="px-5 py-4">Vai trò</th>
               </tr>
             </thead>
 
             <tbody>
               {profiles.map((profile) => (
                 <tr key={profile.id} className="border-t border-slate-200">
-                  <td className="px-5 py-4 font-medium text-slate-900">
-                    {profile.full_name || "Chưa cập nhật"}
+                  <td className="px-5 py-4 font-semibold">
+                    {profile.full_name || "Chưa có tên"}
                   </td>
 
-                  <td className="px-5 py-4 text-slate-600">
-                    {profile.email || "Chưa có email"}
+                  <td className="px-5 py-4">{profile.email || "Chưa có email"}</td>
+
+                  <td className="px-5 py-4">
+                    {profile.phone || "Chưa cập nhật"}
                   </td>
 
                   <td className="px-5 py-4">
-                    <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
-                      {roleLabels[profile.role]}
-                    </span>
+                    {profile.address || "Chưa cập nhật"}
                   </td>
 
                   <td className="px-5 py-4">
                     <select
                       value={profile.role}
-                      disabled={profile.id === currentUserId}
                       onChange={(event) =>
-                        handleChangeRole(
-                          profile.id,
-                          event.target.value as UserRole
-                        )
+                        updateRole(profile.id, event.target.value as UserRole)
                       }
-                      className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-slate-900 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-900"
                     >
-                      <option value="admin">QTV</option>
-                      <option value="staff">Nhân viên</option>
-                      <option value="customer">Khách hàng</option>
+                      {roleOptions.map((role) => (
+                        <option key={role} value={role}>
+                          {roleLabel[role]}
+                        </option>
+                      ))}
                     </select>
-
-                    {profile.id === currentUserId && (
-                      <p className="mt-1 text-xs text-slate-500">
-                        Không đổi quyền tài khoản đang đăng nhập.
-                      </p>
-                    )}
                   </td>
                 </tr>
               ))}

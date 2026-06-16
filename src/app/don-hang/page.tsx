@@ -97,9 +97,9 @@ export default function OrdersPage() {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["admin", "staff"].includes(profile.role)) {
+    if (!profile || !["staff", "owner"].includes(profile.role)) {
       setForbidden(true);
-      setErrorMessage("Chỉ Nhân viên hoặc Quản trị viên được xem đơn hàng.");
+      setErrorMessage("Chỉ Nhân viên hoặc Chủ cửa hàng được xem đơn hàng.");
       setLoading(false);
       return;
     }

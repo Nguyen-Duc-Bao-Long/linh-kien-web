@@ -85,7 +85,7 @@ export default function ManageComponentsPage() {
 
     const role = profile?.role as UserRole | undefined;
 
-    if (!role || !["admin", "staff"].includes(role)) {
+    if (!role || !["admin", "owner"].includes(role)) {
       setForbidden(true);
       setErrorMessage("Chỉ Nhân viên hoặc Quản trị viên được quản lý linh kiện.");
       setLoading(false);

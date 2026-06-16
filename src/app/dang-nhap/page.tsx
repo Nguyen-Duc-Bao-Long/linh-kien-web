@@ -173,9 +173,10 @@ export default function LoginPage() {
                 onChange={(event) => setRole(event.target.value as UserRole)}
                 className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
-                <option value="admin">Quản trị viên</option>
-                <option value="staff">Nhân viên</option>
                 <option value="customer">Khách hàng</option>
+                <option value="staff">Nhân viên</option>
+                <option value="owner">Chủ cửa hàng</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
 

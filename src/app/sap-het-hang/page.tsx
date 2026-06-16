@@ -46,7 +46,7 @@ export default function LowStockPage() {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["admin", "staff"].includes(profile.role)) {
+    if (!profile || !["admin", "owner"].includes(profile.role)) {
       setForbidden(true);
       setErrorMessage(
         "Chỉ Nhân viên hoặc Quản trị viên được xem linh kiện sắp hết hàng."
