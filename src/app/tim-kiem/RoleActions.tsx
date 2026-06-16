@@ -16,7 +16,7 @@ import {
 } from "@/lib/permissions";
 
 const buttonClass =
-  "rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-blue-700";
+  "inline-flex h-14 items-center justify-center rounded-xl bg-blue-600 px-6 text-lg font-semibold leading-none text-white shadow-sm hover:bg-blue-700";
 
 export default function RoleActions() {
   const [role, setRole] = useState<UserRole | null>(null);
@@ -134,9 +134,13 @@ export default function RoleActions() {
         </Link>
 
         {isLoggedIn ? (
-          <button type="button" onClick={handleLogout} className={buttonClass}>
-            Đăng xuất
-          </button>
+          <button
+        type="button"
+        onClick={handleLogout}
+        className={`${buttonClass} border-0 font-sans`}
+        > 
+         Đăng xuất
+      </button>
         ) : (
           <Link href="/dang-nhap" className={buttonClass}>
             Đăng nhập
