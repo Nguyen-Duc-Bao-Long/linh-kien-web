@@ -126,37 +126,40 @@ export default function LoginPage() {
             Truy cập tài khoản để tra cứu và quản lý linh kiện.
           </h1>
 
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700">
-            Khách hàng có thể tìm kiếm linh kiện. Nhân viên và quản trị viên có
-            thể truy cập khu vực quản lý theo quyền được cấp.
-          </p>
-
-<div className="grid gap-4 md:grid-cols-4">
-  <div className="rounded-2xl bg-slate-100 p-5">
-    <h3 className="font-bold text-blue-600">Khách hàng</h3>
-    <p className="mt-3 text-slate-700">
-      Tìm kiếm, xem giá, mua hàng và chat hỗ trợ.
+<div className="mt-8 space-y-3">
+  <div className="flex items-center gap-5 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+    <div className="w-36 shrink-0 text-lg font-extrabold text-blue-600">
+      Khách hàng
+    </div>
+    <p className="text-sm leading-6 text-slate-700">
+      Tìm kiếm linh kiện, xem giá, thêm vào giỏ hàng, đặt mua và chat hỗ trợ.
     </p>
   </div>
 
-  <div className="rounded-2xl bg-slate-100 p-5">
-    <h3 className="font-bold text-blue-600">Nhân viên</h3>
-    <p className="mt-3 text-slate-700">
-      Xem đơn hàng, xác nhận thanh toán và hỗ trợ khách hàng.
+  <div className="flex items-center gap-5 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+    <div className="w-36 shrink-0 text-lg font-extrabold text-blue-600">
+      Nhân viên
+    </div>
+    <p className="text-sm leading-6 text-slate-700">
+      Xem đơn hàng, xác nhận thanh toán, hỗ trợ khách hàng và kiểm tra hàng sắp hết.
     </p>
   </div>
 
-  <div className="rounded-2xl bg-slate-100 p-5">
-    <h3 className="font-bold text-blue-600">Chủ cửa hàng</h3>
-    <p className="mt-3 text-slate-700">
-      Quản lý linh kiện, giá bán, vị trí lưu kho và thống kê.
+  <div className="flex items-center gap-5 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+    <div className="w-36 shrink-0 text-lg font-extrabold text-blue-600">
+      Chủ cửa hàng
+    </div>
+    <p className="text-sm leading-6 text-slate-700">
+      Quản lý linh kiện, cập nhật giá bán, tồn kho, vị trí lưu trữ và thống kê.
     </p>
   </div>
 
-  <div className="rounded-2xl bg-slate-100 p-5">
-    <h3 className="font-bold text-blue-600">Admin</h3>
-    <p className="mt-3 text-slate-700">
-      Quản lý tài khoản, khóa tài khoản và phân quyền người dùng.
+  <div className="flex items-center gap-5 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+    <div className="w-36 shrink-0 text-lg font-extrabold text-blue-600">
+      Admin
+    </div>
+    <p className="text-sm leading-6 text-slate-700">
+      Quản lý tài khoản, phân quyền người dùng, khóa tài khoản và kiểm soát hệ thống.
     </p>
   </div>
 </div>

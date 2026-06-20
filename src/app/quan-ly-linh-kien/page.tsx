@@ -4,7 +4,7 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-type UserRole = "admin" | "staff" | "customer";
+type UserRole = "admin" | "owner" | "staff" | "customer";
 
 type ComponentItem = {
   id: string;
@@ -15,6 +15,7 @@ type ComponentItem = {
   stock: number | null;
   location: string | null;
   description: string | null;
+  usage_guide: string | null;
   datasheet_url: string | null;
   image_url: string | null;
 };
@@ -27,6 +28,7 @@ type ComponentForm = {
   stock: string;
   location: string;
   description: string;
+  usage_guide: string;
   datasheet_url: string;
   image_url: string;
 };
@@ -39,6 +41,7 @@ const emptyForm: ComponentForm = {
   stock: "",
   location: "",
   description: "",
+  usage_guide: "",
   datasheet_url: "",
   image_url: "",
 };
@@ -87,7 +90,7 @@ export default function ManageComponentsPage() {
 
     if (!role || !["admin", "owner"].includes(role)) {
       setForbidden(true);
-      setErrorMessage("Chỉ Nhân viên hoặc Quản trị viên được quản lý linh kiện.");
+      setErrorMessage("Chỉ Chủ cửa hàng hoặc Quản trị viên được quản lý linh kiện.");
       setLoading(false);
       return;
     }
@@ -100,7 +103,7 @@ export default function ManageComponentsPage() {
     const { data, error } = await supabase
       .from("components")
       .select(
-        "id, name, code, category, price, stock, location, description, datasheet_url, image_url"
+        "id, name, code, category, price, stock, location, description, usage_guide, datasheet_url, image_url"
       )
       .order("name", { ascending: true });
 
@@ -141,6 +144,7 @@ export default function ManageComponentsPage() {
           : "",
       location: item.location || "",
       description: item.description || "",
+      usage_guide: item.usage_guide || "",
       datasheet_url: item.datasheet_url || "",
       image_url: item.image_url || "",
     });
@@ -179,6 +183,7 @@ export default function ManageComponentsPage() {
       stock: form.stock.trim() ? Number(form.stock) : 0,
       location: form.location.trim(),
       description: form.description.trim(),
+      usage_guide: form.usage_guide.trim(),
       datasheet_url: form.datasheet_url.trim(),
       image_url: form.image_url.trim(),
     };
@@ -413,6 +418,22 @@ export default function ManageComponentsPage() {
                 }
                 placeholder="Nhập mô tả cơ bản về linh kiện"
                 rows={3}
+                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold text-slate-700">
+                Hướng dẫn sử dụng / nhận biết
+              </label>
+
+              <textarea
+                value={form.usage_guide}
+                onChange={(event) =>
+                  updateForm("usage_guide", event.target.value)
+                }
+                placeholder="Ví dụ: Cách đọc trị số điện trở, cách xác định cực LED, cách nhận biết chiều tụ hóa..."
+                rows={4}
                 className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>

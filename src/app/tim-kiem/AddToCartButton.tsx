@@ -1,5 +1,7 @@
 "use client";
 
+import { supabase } from "@/lib/supabaseClient";
+
 type CartItem = {
   id: string;
   name: string;
@@ -16,7 +18,16 @@ type AddToCartButtonProps = {
 };
 
 export default function AddToCartButton({ item }: AddToCartButtonProps) {
-  function handleAddToCart() {
+  async function handleAddToCart() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Bạn cần đăng nhập để sử dụng tính năng thêm vào giỏ hàng.");
+      return;
+    }
+
     const oldCart = localStorage.getItem("cart");
     const cart: CartItem[] = oldCart ? JSON.parse(oldCart) : [];
 
