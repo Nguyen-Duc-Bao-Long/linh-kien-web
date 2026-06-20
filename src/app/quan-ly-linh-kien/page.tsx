@@ -152,74 +152,114 @@ export default function ManageComponentsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
 
-    setMessage("");
-    setErrorMessage("");
+  setMessage("");
+  setErrorMessage("");
 
-    if (!form.name.trim()) {
-      setErrorMessage("Vui lòng nhập tên linh kiện.");
-      return;
-    }
+  const nameValue = form.name.trim();
+  const codeValue = form.code.trim();
+  const categoryValue = form.category.trim();
 
-    if (!form.code.trim()) {
-      setErrorMessage("Vui lòng nhập mã linh kiện.");
-      return;
-    }
+  if (!nameValue) {
+    setErrorMessage("Vui lòng nhập tên linh kiện.");
+    return;
+  }
 
-    if (!form.category.trim()) {
-      setErrorMessage("Vui lòng nhập loại linh kiện.");
-      return;
-    }
+  if (!codeValue) {
+    setErrorMessage("Vui lòng nhập mã linh kiện.");
+    return;
+  }
 
-    setSaving(true);
+  if (!categoryValue) {
+    setErrorMessage("Vui lòng nhập loại linh kiện.");
+    return;
+  }
 
-    const payload = {
-      name: form.name.trim(),
-      code: form.code.trim(),
-      category: form.category.trim(),
-      price: form.price.trim() ? Number(form.price) : 0,
-      stock: form.stock.trim() ? Number(form.stock) : 0,
-      location: form.location.trim(),
-      description: form.description.trim(),
-      usage_guide: form.usage_guide.trim(),
-      datasheet_url: form.datasheet_url.trim(),
-      image_url: form.image_url.trim(),
-    };
+  setSaving(true);
 
-    if (editingId) {
-      const { error } = await supabase
-        .from("components")
-        .update(payload)
-        .eq("id", editingId);
+  let duplicateData: { id: string }[] | null = null;
+  let duplicateError = null;
 
-      setSaving(false);
+  if (editingId) {
+    const result = await supabase
+      .from("components")
+      .select("id")
+      .eq("code", codeValue)
+      .neq("id", editingId)
+      .limit(1);
 
-      if (error) {
-        setErrorMessage("Không cập nhật được linh kiện.");
-        return;
-      }
+    duplicateData = result.data;
+    duplicateError = result.error;
+  } else {
+    const result = await supabase
+      .from("components")
+      .select("id")
+      .eq("code", codeValue)
+      .limit(1);
 
-      setMessage("Cập nhật linh kiện thành công.");
-      resetForm();
-      await loadComponents();
-      return;
-    }
+    duplicateData = result.data;
+    duplicateError = result.error;
+  }
 
-    const { error } = await supabase.from("components").insert(payload);
+  if (duplicateError) {
+    setSaving(false);
+    setErrorMessage("Không kiểm tra được mã linh kiện. Vui lòng thử lại.");
+    return;
+  }
+
+  if (duplicateData && duplicateData.length > 0) {
+    setSaving(false);
+    setErrorMessage("Mã linh kiện bị trùng. Vui lòng nhập mã linh kiện khác.");
+    return;
+  }
+
+  const payload = {
+    name: nameValue,
+    code: codeValue,
+    category: categoryValue,
+    price: form.price.trim() ? Number(form.price) : 0,
+    stock: form.stock.trim() ? Number(form.stock) : 0,
+    location: form.location.trim(),
+    description: form.description.trim(),
+    usage_guide: form.usage_guide.trim(),
+    datasheet_url: form.datasheet_url.trim(),
+    image_url: form.image_url.trim(),
+  };
+
+  if (editingId) {
+    const { error } = await supabase
+      .from("components")
+      .update(payload)
+      .eq("id", editingId);
 
     setSaving(false);
 
     if (error) {
-      setErrorMessage("Không thêm được linh kiện. Có thể mã linh kiện đã tồn tại.");
+      setErrorMessage("Không cập nhật được linh kiện.");
       return;
     }
 
-    setMessage("Thêm linh kiện thành công.");
+    setMessage("Cập nhật linh kiện thành công.");
     resetForm();
     await loadComponents();
+    return;
   }
+
+  const { error } = await supabase.from("components").insert(payload);
+
+  setSaving(false);
+
+  if (error) {
+    setErrorMessage("Không thêm được linh kiện.");
+    return;
+  }
+
+  setMessage("Thêm linh kiện thành công.");
+  resetForm();
+  await loadComponents();
+}
 
   async function handleDelete(item: ComponentItem) {
     const confirmDelete = window.confirm(

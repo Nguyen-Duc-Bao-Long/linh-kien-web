@@ -47,6 +47,22 @@ export default function LoginPage() {
       email: email.trim(),
       password,
     });
+ 
+if (data.user) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_locked")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profile?.is_locked) {
+    await supabase.auth.signOut();
+    setErrorMessage("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+    return;
+  }
+}
+
+window.location.href = "/tim-kiem";
 
     if (error) {
       setLoading(false);

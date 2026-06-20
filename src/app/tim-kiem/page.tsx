@@ -2,6 +2,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import RoleActions from "./RoleActions";
 import AddToCartButton from "./AddToCartButton";
+import ImageSearchBox from "./ImageSearchBox";
 
 type ComponentItem = {
   id: string;
@@ -131,6 +132,10 @@ export default async function SearchPage({
               Tìm kiếm
             </button>
           </form>
+
+          <div className="mx-auto max-w-4xl">
+             <ImageSearchBox />
+          </div>
         </div>
       </section>
 

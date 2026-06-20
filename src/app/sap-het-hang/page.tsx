@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
+type UserRole = "customer" | "staff" | "owner" | "admin";
+
 type ComponentItem = {
   id: string;
   name: string;
@@ -16,6 +18,8 @@ type ComponentItem = {
 
 export default function LowStockPage() {
   const [components, setComponents] = useState<ComponentItem[]>([]);
+  const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -46,14 +50,18 @@ export default function LowStockPage() {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["admin", "owner"].includes(profile.role)) {
+    const role = profile?.role as UserRole | undefined;
+
+    if (!role || !["staff", "owner"].includes(role)) {
       setForbidden(true);
       setErrorMessage(
-        "Chỉ Nhân viên hoặc Quản trị viên được xem linh kiện sắp hết hàng."
+        "Chỉ Nhân viên hoặc Chủ cửa hàng mới có thể xem linh kiện sắp hết hàng."
       );
       setLoading(false);
       return;
     }
+
+    setCurrentRole(role);
 
     const { data, error } = await supabase
       .from("components")
@@ -73,7 +81,7 @@ export default function LowStockPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
+      <main className="min-h-screen px-6 py-12 text-slate-900">
         <p className="text-center text-slate-600">
           Đang tải danh sách linh kiện sắp hết hàng...
         </p>
@@ -83,7 +91,7 @@ export default function LowStockPage() {
 
   if (forbidden) {
     return (
-      <main className="min-h-screen bg-slate-50 px-6 py-12 text-slate-900">
+      <main className="min-h-screen px-6 py-12 text-slate-900">
         <section className="mx-auto max-w-xl rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
           <h1 className="text-3xl font-bold text-red-600">
             Không có quyền truy cập
@@ -103,7 +111,7 @@ export default function LowStockPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+    <main className="min-h-screen px-6 py-10 text-slate-900">
       <section className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -117,12 +125,14 @@ export default function LowStockPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/quan-ly-linh-kien"
-              className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
-            >
-              Quản lý linh kiện
-            </Link>
+            {currentRole === "owner" && (
+              <Link
+                href="/quan-ly-linh-kien"
+                className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+              >
+                Quản lý linh kiện
+              </Link>
+            )}
 
             <Link
               href="/tim-kiem"
