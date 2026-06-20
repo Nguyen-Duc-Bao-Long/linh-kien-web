@@ -3,10 +3,6 @@ import OpenAI from "openai";
 
 export const runtime = "nodejs";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 type ImageSearchResult = {
   keyword: string;
   category: string;
@@ -37,14 +33,38 @@ function safeParseJson(text: string): ImageSearchResult {
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("TIMEOUT"));
+    }, ms);
+
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
 export async function POST(request: Request) {
   try {
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
-        { error: "Thiếu OPENAI_API_KEY trong file .env.local." },
+        { error: "Thiếu OPENAI_API_KEY trong file .env.local hoặc Vercel." },
         { status: 500 }
       );
     }
+
+    const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 20000,
+  maxRetries: 0,
+});
 
     const formData = await request.formData();
     const file = formData.get("image");
@@ -81,34 +101,32 @@ export async function POST(request: Request) {
     const prompt = `
 Bạn là hệ thống nhận diện linh kiện điện tử từ ảnh.
 
-Nhiệm vụ:
-- Nhìn ảnh và đoán linh kiện trong ảnh.
-- Trả về keyword để tìm kiếm trong cơ sở dữ liệu.
-- Trả về category phù hợp với hệ thống.
-- Chỉ trả về JSON, không giải thích thêm.
+Chỉ trả về JSON hợp lệ, không giải thích thêm.
 
 Các category hợp lệ:
 Tất cả, Điện trở, Tụ điện, IC, Cảm biến, Module, Diode, Transistor, Relay
 
 Quy tắc:
-- Nếu thấy điện trở: keyword có thể là "điện trở" hoặc mã nếu đọc được.
-- Nếu thấy tụ: keyword là "tụ điện", "tụ hóa", "tụ gốm" hoặc mã nếu đọc được.
-- Nếu thấy LED/diode: keyword là "diode" hoặc "LED".
-- Nếu thấy IC: keyword là mã IC đọc được, ví dụ NE555, LM358, L293D.
-- Nếu thấy cảm biến: keyword là tên/mã cảm biến nếu đọc được, ví dụ DHT11, DHT22, HC-SR04.
+- Nếu thấy điện trở: keyword là "điện trở", category là "Điện trở".
+- Nếu thấy tụ: keyword là "tụ điện", category là "Tụ điện".
+- Nếu thấy LED hoặc diode: keyword là "diode" hoặc "LED", category là "Diode".
+- Nếu thấy IC: keyword là mã IC nếu đọc được, ví dụ NE555, LM358, L293D; category là "IC".
+- Nếu thấy cảm biến: keyword là tên/mã cảm biến nếu đọc được, ví dụ DHT11, DHT22, HC-SR04; category là "Cảm biến".
 - Nếu không chắc mã cụ thể, trả về loại linh kiện gần đúng.
 
 Định dạng JSON:
 {
   "keyword": "từ khóa tìm kiếm ngắn",
   "category": "một category hợp lệ",
-  "confidence": số từ 0 đến 1,
+  "confidence": 0.8,
   "description": "mô tả ngắn linh kiện trong ảnh"
 }
 `.trim();
 
-    const response = await openai.responses.create({
+    const responsePromise = openai.responses.create({
       model: process.env.OPENAI_VISION_MODEL || "gpt-4o-mini",
+      temperature: 0,
+      max_output_tokens: 200,
       input: [
         {
           role: "user",
@@ -120,27 +138,42 @@ Quy tắc:
             {
               type: "input_image",
               image_url: imageDataUrl,
-              detail: "auto",
+              detail: "low",
             },
           ],
         },
       ],
     });
 
+    const response = await withTimeout(responsePromise, 25000);
+
     const rawText = response.output_text || "";
     const result = safeParseJson(rawText);
 
     return NextResponse.json({
-      keyword: result.keyword || "",
+      keyword: result.keyword || "linh kiện điện tử",
       category: result.category || "Tất cả",
       confidence: Number(result.confidence || 0),
       description: result.description || "",
     });
   } catch (error) {
-    console.error(error);
+    console.error("IMAGE_SEARCH_ERROR:", error);
+
+    if (error instanceof Error && error.message === "TIMEOUT") {
+      return NextResponse.json(
+        {
+          error:
+            "Nhận diện ảnh quá lâu. Vui lòng thử lại với ảnh nhỏ hơn hoặc kiểm tra API key.",
+        },
+        { status: 504 }
+      );
+    }
 
     return NextResponse.json(
-      { error: "Không nhận diện được ảnh. Vui lòng thử lại." },
+      {
+        error:
+          "Không nhận diện được ảnh. Kiểm tra API key, billing/quota hoặc thử lại ảnh khác.",
+      },
       { status: 500 }
     );
   }

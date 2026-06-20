@@ -51,27 +51,39 @@ export default function ImageSearchBox() {
     setPreviewUrl(URL.createObjectURL(file));
   }
 
-  async function handleImageSearch() {
-    if (!selectedFile) {
-      setErrorMessage("Vui lòng chọn ảnh linh kiện trước.");
-      return;
-    }
+async function handleImageSearch() {
+  if (!selectedFile) {
+    setErrorMessage("Vui lòng chọn ảnh linh kiện trước.");
+    return;
+  }
 
-    setLoading(true);
-    setErrorMessage("");
-    setResult(null);
+  setLoading(true);
+  setErrorMessage("");
+  setResult(null);
 
-    const formData = new FormData();
-    formData.append("image", selectedFile);
+  const formData = new FormData();
+  formData.append("image", selectedFile);
 
+  const controller = new AbortController();
+
+  const timeoutId = window.setTimeout(() => {
+    controller.abort();
+  }, 30000);
+
+  try {
     const response = await fetch("/api/image-search", {
       method: "POST",
       body: formData,
+      signal: controller.signal,
     });
 
-    const data = await response.json();
+    let data: any = {};
 
-    setLoading(false);
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
 
     if (!response.ok) {
       setErrorMessage(data.error || "Không nhận diện được ảnh.");
@@ -84,7 +96,20 @@ export default function ImageSearchBox() {
     const category = encodeURIComponent(data.category || "Tất cả");
 
     router.push(`/tim-kiem?q=${keyword}&category=${category}`);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      setErrorMessage(
+        "Nhận diện ảnh quá lâu. Vui lòng thử lại hoặc kiểm tra API key."
+      );
+      return;
+    }
+
+    setErrorMessage("Không nhận diện được ảnh. Vui lòng thử lại.");
+  } finally {
+    window.clearTimeout(timeoutId);
+    setLoading(false);
   }
+}
 
   return (
     <section className="mt-8 rounded-3xl bg-white p-5 text-left shadow-2xl ring-1 ring-white/60">
