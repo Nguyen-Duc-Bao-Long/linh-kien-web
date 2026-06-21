@@ -1,7 +1,1 @@
-BÀI TẬP LỚN BỘ MÔN KỸ THUẬT PHẦN MỀM ỨNG DỤNG (NHÓM 9)
-GVHD: PGS.TS LÊ THỊ LAN  -  BÙI HẠNH TRANG
-MÃ LỚP: 169194
-NHÓM SINH VIÊN:
-Nguyễn Đức Bảo Long	202414229
-Trần Đức Mạnh	202414240
-Lê Thành Nam	202414278
+BÀI TẬP LỚN BỘ MÔN KỸ THUẬT PHẦN MỀM ỨNG DỤNG (NHÓM 9) - MÃ LỚP: 169194
