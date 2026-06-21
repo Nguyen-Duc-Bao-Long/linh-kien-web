@@ -555,7 +555,14 @@ async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     Ảnh linh kiện
   </label>
 
-  <div className="mt-2 flex flex-wrap gap-3">
+  <input
+    value={form.image_url}
+    onChange={(event) => updateForm("image_url", event.target.value)}
+    placeholder="Link ảnh sẽ tự hiện sau khi upload"
+    className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+  />
+
+  <div className="mt-3 flex flex-wrap gap-3">
     <input
       id="component-image-upload"
       type="file"
@@ -566,18 +573,14 @@ async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
     <label
       htmlFor="component-image-upload"
-      className="cursor-pointer rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-100"
+      className="inline-flex cursor-pointer items-center justify-center rounded-xl px-5 py-3 font-semibold text-white shadow-sm transition"
+      style={{
+        backgroundColor: "#0284c7",
+      }}
     >
       {uploadingImage ? "Đang upload..." : "Chọn ảnh từ máy"}
     </label>
   </div>
-
-  <input
-    value={form.image_url}
-    onChange={(event) => updateForm("image_url", event.target.value)}
-    placeholder="Link ảnh sẽ tự hiện sau khi upload"
-    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-  />
 
   {form.image_url && (
     <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
