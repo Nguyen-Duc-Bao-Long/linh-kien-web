@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useEffect, useState } from "react";
+import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 type UserRole = "admin" | "owner" | "staff" | "customer";
@@ -54,6 +54,7 @@ export default function ManageComponentsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [forbidden, setForbidden] = useState(false);
   const [message, setMessage] = useState("");
@@ -115,12 +116,68 @@ export default function ManageComponentsPage() {
     setComponents((data || []) as ComponentItem[]);
   }
 
+    
+
   function updateForm(field: keyof ComponentForm, value: string) {
     setForm((oldForm) => ({
       ...oldForm,
       [field]: value,
     }));
   }
+
+async function handleUploadComponentImage(
+  event: ChangeEvent<HTMLInputElement>
+) {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  setMessage("");
+  setErrorMessage("");
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowedTypes.includes(file.type)) {
+    setErrorMessage("Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.");
+    return;
+  }
+
+  const maxSize = 5 * 1024 * 1024;
+
+  if (file.size > maxSize) {
+    setErrorMessage("Ảnh không được vượt quá 5MB.");
+    return;
+  }
+
+  setUploadingImage(true);
+
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const fileName = `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}.${fileExt}`;
+  const filePath = `components/${fileName}`;
+
+  const { error } = await supabase.storage
+    .from("component-images")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  setUploadingImage(false);
+
+  if (error) {
+    setErrorMessage(`Không upload được ảnh: ${error.message}`);
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("component-images")
+    .getPublicUrl(filePath);
+
+  updateForm("image_url", data.publicUrl);
+  setMessage("Upload ảnh linh kiện thành công.");
+}
 
   function resetForm() {
     setForm(emptyForm);
@@ -493,18 +550,45 @@ async function handleSubmit(event: FormEvent<HTMLFormElement>) {
               />
             </div>
 
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Link ảnh linh kiện
-              </label>
+<div>
+  <label className="text-sm font-semibold text-slate-700">
+    Ảnh linh kiện
+  </label>
 
-              <input
-                value={form.image_url}
-                onChange={(event) => updateForm("image_url", event.target.value)}
-                placeholder="https://..."
-                className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
-            </div>
+  <div className="mt-2 flex flex-wrap gap-3">
+    <input
+      id="component-image-upload"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      onChange={handleUploadComponentImage}
+      className="hidden"
+    />
+
+    <label
+      htmlFor="component-image-upload"
+      className="cursor-pointer rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 hover:bg-slate-100"
+    >
+      {uploadingImage ? "Đang upload..." : "Chọn ảnh từ máy"}
+    </label>
+  </div>
+
+  <input
+    value={form.image_url}
+    onChange={(event) => updateForm("image_url", event.target.value)}
+    placeholder="Link ảnh sẽ tự hiện sau khi upload"
+    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+  />
+
+  {form.image_url && (
+    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+      <img
+        src={form.image_url}
+        alt="Ảnh linh kiện"
+        className="max-h-56 w-full object-contain p-3"
+      />
+    </div>
+  )}
+</div>
 
             <div className="flex flex-wrap gap-3 md:col-span-2">
               <button
