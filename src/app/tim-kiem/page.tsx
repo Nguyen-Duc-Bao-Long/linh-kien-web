@@ -79,7 +79,7 @@ export default async function SearchPage({
       <header className="sticky top-0 z-50 border-b border-white/60 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-5 px-6 py-4">
           <Link href="/" className="text-xl font-extrabold text-blue-700">
-            Linh Kiện Hub
+            KTPMUD Nhóm 9
           </Link>
 
           <RoleActions />
