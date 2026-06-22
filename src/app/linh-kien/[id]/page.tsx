@@ -91,7 +91,6 @@ export default async function ComponentDetailPage({ params }: PageProps) {
   }
 
   const component = item as ComponentItem;
-
   const recommendCategories = getRecommendCategories(component);
 
   let recommendedComponents: ComponentItem[] = [];
@@ -121,11 +120,11 @@ export default async function ComponentDetailPage({ params }: PageProps) {
 
         <section className="overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-slate-200">
           {component.image_url && (
-            <div className="flex h-72 items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+            <div className="flex h-[420px] items-center justify-center bg-slate-50">
               <img
                 src={component.image_url}
                 alt={component.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain p-5"
               />
             </div>
           )}
@@ -169,7 +168,6 @@ export default async function ComponentDetailPage({ params }: PageProps) {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl bg-slate-50 p-5">
                 <p className="text-sm font-semibold text-slate-500">Giá bán</p>
-
                 <p className="mt-1 text-2xl font-extrabold text-slate-950">
                   {formatPrice(component.price)}
                 </p>
@@ -177,7 +175,6 @@ export default async function ComponentDetailPage({ params }: PageProps) {
 
               <div className="rounded-2xl bg-slate-50 p-5">
                 <p className="text-sm font-semibold text-slate-500">Tồn kho</p>
-
                 <p
                   className={`mt-1 text-2xl font-extrabold ${
                     Number(component.stock || 0) < 10
@@ -200,32 +197,34 @@ export default async function ComponentDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-          <div className="mt-8 grid items-center gap-5 md:grid-cols-2">
-           <div className="[&_button]:!m-0 [&_button]:!h-[64px] [&_button]:!w-full [&_button]:!rounded-xl [&_button]:!text-base [&_button]:!font-bold">
-            <AddToCartButton
-             item={{
-              id: component.id,
-              name: component.name,
-              price: Number(component.price || 0),
-            }}
-            />
-          </div>
+            <div className="mt-8 grid items-stretch gap-5 md:grid-cols-2">
+              <div className="flex items-stretch">
+                <AddToCartButton
+                  item={{
+                    id: component.id,
+                    name: component.name,
+                    price: Number(component.price || 0),
+                  }}
+                />
+              </div>
 
-          {component.datasheet_url ? (
-            <a
-            href={component.datasheet_url}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-[64px] w-full items-center justify-center rounded-xl border border-blue-600 bg-white text-base font-bold text-blue-600 transition hover:bg-blue-50"
-          >
-            Xem datasheet
-         </a>
-      ) : (
-          <div className="flex h-[64px] w-full items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-base font-bold text-slate-500">
-            Chưa có datasheet
-          </div>
-        )}
-        </div>
+              <div className="flex items-stretch">
+                {component.datasheet_url ? (
+                  <a
+                    href={component.datasheet_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-[60px] w-full items-center justify-center rounded-xl border border-blue-600 bg-white text-base font-bold text-blue-600 transition hover:bg-blue-50"
+                  >
+                    Xem datasheet
+                  </a>
+                ) : (
+                  <div className="flex h-[60px] w-full items-center justify-center rounded-xl border border-slate-300 bg-slate-50 text-base font-bold text-slate-500">
+                    Chưa có datasheet
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -276,7 +275,6 @@ export default async function ComponentDetailPage({ params }: PageProps) {
 
                   <div className="mt-4 rounded-xl bg-slate-50 p-4">
                     <p className="text-sm text-slate-500">Giá bán</p>
-
                     <p className="font-extrabold text-slate-950">
                       {formatPrice(recommended.price)}
                     </p>
